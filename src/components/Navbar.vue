@@ -60,7 +60,7 @@
                                 </svg>
                             </template>
                         </SubMenuItem>
-                        <SubMenuItem title="Guardar">
+                        <SubMenuItem @click="downloadJson" title="Guardar">
                             <template #icon>
                                 <svg class="mr-2 w-5 h-5 text-gray-500 transition duration-75  group-hover:text-white"
                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -339,7 +339,7 @@
 </template>
 
 <script setup>
-import { defineProps, watch, defineEmits,ref } from 'vue';
+import { defineProps, watch, defineEmits,ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import IconArrowOpen from './icons/IconArrowOpen.vue';
 import IconArrowClose from './icons/IconArrowClose.vue';
@@ -364,4 +364,15 @@ const store = useStore();
     store.commit('clearJsonData');
   };
 
+const jsonData = computed(() => store.state.jsonData);
+
+const downloadJson = () => {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData.value));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", "data.json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
 </script>
