@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Graph from '../views/Graph.vue'
 import NewGraph from '../views/NewGraph.vue'
 import OpenJson from '../views/OpenJson.vue'
+import OpenTXT from '@/views/OpenTXT.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/openjson',
       name: 'openjson',
       component: OpenJson
+    },
+    {
+      path: '/opentxt',
+      name: 'opentxt',
+      component: OpenTXT
     },
     {
       path: '/about',
