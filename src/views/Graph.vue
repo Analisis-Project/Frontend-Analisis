@@ -20,9 +20,13 @@ let nodesData = [];
 let edgesData = [];
 
 let newNode = null;
+let newEdge = null;
 
 const isModalVisibleNodeAdd = ref(false);
 const isModalVisibleNodeEdit = ref(false);
+
+const isModalVisibleEdgeAdd = ref(false);
+const isModalVisibleEdgeEdit = ref(false);
 
 const showModalNodeAdd = () => {
   isModalVisibleNodeAdd.value = true;
@@ -41,9 +45,27 @@ const closeModalNodeEdit = () => {
   isModalVisibleNodeEdit.value = false;
 };
 
+const showModalEdgeAdd = () => {
+  isModalVisibleEdgeAdd.value = true;
+};
+
+const closeModalEdgeAdd = () => {
+  isModalVisibleEdgeAdd.value = false;
+};
+
+const showModalEdgeEdit = () => {
+  isModalVisibleEdgeEdit.value = true;
+};
+
+const closeModalEdgeEdit = () => {
+  resolveModalEdit();
+  isModalVisibleEdgeEdit.value = false;
+};
+
 class Node {
   constructor(
     id,
+    value = null,
     label,
     data = {},
     type = "",
@@ -51,6 +73,7 @@ class Node {
     coordenates = { x: 0, y: 0 }
   ) {
     this.id = id;
+    this.value = value;
     this.label = label;
     this.data = data;
     this.type = type;
@@ -60,7 +83,8 @@ class Node {
 }
 
 class Edge {
-  constructor(from, to, weight = 0) {
+  constructor(type = "", from, to, weight = 0) {
+    this.type = type;
     this.from = from;
     this.to = to;
     this.weight = weight;
@@ -89,6 +113,7 @@ function updateGraph(jsonData) {
     jsonData.graph[0].data.forEach((node) => {
       let newnode = new Node(
         node.id,
+        node.value,
         node.label,
         node.data,
         node.type,
@@ -103,7 +128,7 @@ function updateGraph(jsonData) {
         y: newnode.coordenates.y,
       });
       node.linkedTo.forEach((link) => {
-        let newedge = new Edge(node.id, link.nodeId, link.weight);
+        let newedge = new Edge(node.type, node.id, link.nodeId, link.weight);
         edgesData.push(newedge);
         edges.push({
           from: newedge.from,
@@ -138,14 +163,14 @@ function updateGraph(jsonData) {
       enabled: true,
       initiallyActive: false,
       addNode: addNodeFunction,
-      addEdge: true,
+      addEdge: addEdgeFunction,
       editNode: editNodeFunction,
       editEdge: true,
       deleteNode: deleteNodeFunction,
       deleteEdge: true,
     },
     physics: {
-      enabled: false,
+      enabled: true,
     },
   };
 
@@ -153,6 +178,12 @@ function updateGraph(jsonData) {
 }
 
 function addNodeFunction(nodeData, callback) {
+  label.value = "";
+  value.value = "";
+  type.value = "";
+  radius.value = 0;
+  posx.value = 0;
+  posy.value = 0;
   showModalNodeAdd();
 
   // Crear una nueva Promise que se resolverá cuando el modal se cierre
@@ -161,6 +192,7 @@ function addNodeFunction(nodeData, callback) {
   }).then(() => {
     // Este código se ejecutará cuando el modal se cierre
     nodeData.id = newNode.id;
+    nodeData.value = newNode.value;
     nodeData.label = newNode.label;
     nodeData.x = newNode.coordenates.x;
     nodeData.y = newNode.coordenates.y;
@@ -172,6 +204,7 @@ function addNodeFunction(nodeData, callback) {
 const addNodeForm = () => {
   newNode = new Node(
     nodesData.length + 1, // ID del nuevo nodo
+    value.value, // Valor del nuevo nodo
     label.value,
     {}, // Datos del nodo
     type.value,
@@ -195,6 +228,8 @@ function editNodeFunction(nodeData, callback) {
     let nodearray = nodesData[index];
     // Configura el formulario con los datos del nodo existente
     label.value = nodeData.label;
+    value.value = nodeData.value;
+    color.value = nodeData.color.background;
     type.value = nodearray.type;
     radius.value = nodearray.radius;
     posx.value = nodeData.x;
@@ -210,6 +245,7 @@ function editNodeFunction(nodeData, callback) {
     resolveModalEdit = resolve;
   }).then(() => {
     // Este código se ejecutará cuando el modal se cierre
+    currentNode.color.background = color.value;
     callback(currentNode);
   });
 }
@@ -217,6 +253,7 @@ function editNodeFunction(nodeData, callback) {
 const editNodeForm = () => {
   // Actualiza el nodo existente con los nuevos valores del formulario
   currentNode.label = label.value;
+  currentNode.value = value.value;
   currentNode.type = type.value;
   currentNode.radius = radius.value;
   currentNode.x = posx.value;
@@ -229,6 +266,7 @@ const editNodeForm = () => {
   if (index !== -1) {
     nodesData[index] = new Node(
       currentNode.id,
+      currentNode.value,
       currentNode.label,
       currentNode.data,
       currentNode.type,
@@ -252,8 +290,39 @@ function deleteNodeFunction(nodeData, callback) {
 }
 
 // Función para agregar una arista
-function addEdge(edge) {
-  edgesDataSet.add(edge);
+function addEdgeFunction(edgeData, callback) {
+  typeEdge.value = "";
+  weight.value = 0;
+  colorEdge.value = "";
+
+  showModalEdgeAdd();
+  // Crear una nueva Promise que se resolverá cuando el modal se cierre
+  new Promise((resolve) => {
+    resolveModalPromise = resolve;
+  }).then(() => {
+    // Este código se ejecutará cuando el modal se cierre
+    
+    newEdge.from = edgeData.from;
+    newEdge.to = edgeData.to;
+
+    edgesData.push(newEdge);
+    console.log("Agregando arista: ", edgesData);
+    
+    edgeData.color.color = colorEdge.value;
+   
+    callback(edgeData);
+  });
+}
+
+const addEdgeForm = () => {
+  newEdge = new Edge(
+    typeEdge.value, // ID de la nueva arista
+    weight.value
+  );
+
+  // Cerrar el modal y resolver la Promise
+  closeModalEdgeAdd();
+  resolveModalPromise();
 }
 
 // Función para editar una arista
@@ -266,11 +335,21 @@ function removeEdge(id) {
   edgesDataSet.remove(id);
 }
 
+//Node
+
+const value = ref("");
 const label = ref("");
 const type = ref("");
 const radius = ref(0);
 const posx = ref(0);
 const posy = ref(0);
+const color = ref("");
+
+//Edge
+const typeEdge = ref("");
+const weight = ref(0);
+const colorEdge = ref("");
+
 </script>
 
 <template>
@@ -294,6 +373,22 @@ const posy = ref(0);
                 type="text"
                 id="label"
                 v-model="label"
+                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="mb-5">
+              <label
+                for="value"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Valor del nodo</label
+              >
+              <input
+                type="text"
+                id="value"
+                v-model="value"
                 class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                 placeholder=""
                 required
@@ -376,7 +471,7 @@ const posy = ref(0);
     </Modal>
     <Modal v-show="isModalVisibleNodeEdit" @close="closeModalNodeEdit">
       <template v-slot:header>
-        <h2 class="text-3xl text-white">Agregar Nodo</h2>
+        <h2 class="text-3xl text-white">Editar Nodo</h2>
       </template>
       <template v-slot:body>
         <form @submit.prevent="editNodeForm" class="mb-10">
@@ -399,15 +494,15 @@ const posy = ref(0);
             </div>
             <div class="mb-5">
               <label
-                for="type"
+                for="value"
                 class="block mb-2 text-sm font-medium text-white"
               >
-                Tipo del nodo</label
+                Valor del nodo</label
               >
               <input
                 type="text"
-                id="type"
-                v-model="type"
+                id="value"
+                v-model="value"
                 class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                 placeholder=""
                 required
@@ -415,51 +510,15 @@ const posy = ref(0);
             </div>
             <div class="mb-5">
               <label
-                for="radius"
+                for="color"
                 class="block mb-2 text-sm font-medium text-white"
               >
-                Radio del nodo</label
+                Color del nodo</label
               >
-              <input
-                type="number"
-                id="radius"
-                v-model="radius"
-                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                placeholder=""
-                required
-              />
-            </div>
-            <div class="mb-5">
-              <label
-                for="posx"
-                class="block mb-2 text-sm font-medium text-white"
-              >
-                Posicion X</label
-              >
-              <input
-                type="number"
-                id="posx"
-                v-model="posx"
-                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                placeholder=""
-                required
-              />
-            </div>
-            <div class="mb-5">
-              <label
-                for="posy"
-                class="block mb-2 text-sm font-medium text-white"
-              >
-                Posicion Y</label
-              >
-              <input
-                type="number"
-                id="posy"
-                v-model="posy"
-                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                placeholder=""
-                required
-              />
+              <input type="color"
+                id="color"
+                v-model="color" class="w-full" required />
+              
             </div>
           </div>
 
@@ -472,6 +531,133 @@ const posy = ref(0);
         </form>
       </template>
     </Modal>
+    <Modal v-show="isModalVisibleEdgeAdd" @close="closeModalEdgeAdd">
+      <template v-slot:header>
+        <h2 class="text-3xl text-white">Agregar Arista</h2>
+      </template>
+      <template v-slot:body>
+        <form @submit.prevent="addEdgeForm" class="mb-10">
+          <div class="mb-10">
+            <div class="mb-5">
+              <label
+                for="typeEdge"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Tipo de Arista</label
+              >
+              <input
+                type="text"
+                id="typeEdge"
+                v-model="typeEdge"
+                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="mb-5">
+              <label
+                for="colorEdge"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Color de la linea</label
+              >
+              <input type="color"
+                id="colorEdge"
+                v-model="colorEdge" class="w-full" required />
+              
+            </div>
+            <div class="mb-5">
+              <label
+                for="weight"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Peso de la Arista</label
+              >
+              <input
+                type="number"
+                id="weight"
+                v-model="weight"
+                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                placeholder=""
+                required
+              />
+            </div>
+            
+          </div>
+
+          <button
+            type="submit"
+            class="text-white focus:ring-4 focus:outline-nonefont-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
+          >
+            Crear Arista
+          </button>
+        </form>
+      </template>
+    </Modal>
+    <Modal v-show="isModalVisibleEdgeEdit" @close="closeModalEdgeEdit">
+      <template v-slot:header>
+        <h2 class="text-3xl text-white">Editar Nodo</h2>
+      </template>
+      <template v-slot:body>
+        <form @submit.prevent="editNodeForm" class="mb-10">
+          <div class="mb-10">
+            <div class="mb-5">
+              <label
+                for="label"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Nombre del nodo</label
+              >
+              <input
+                type="text"
+                id="label"
+                v-model="label"
+                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="mb-5">
+              <label
+                for="value"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Valor del nodo</label
+              >
+              <input
+                type="text"
+                id="value"
+                v-model="value"
+                class="border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                placeholder=""
+                required
+              />
+            </div>
+            <div class="mb-5">
+              <label
+                for="color"
+                class="block mb-2 text-sm font-medium text-white"
+              >
+                Color del nodo</label
+              >
+              <input type="color"
+                id="color"
+                v-model="color" class="w-full" required />
+              
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="text-white focus:ring-4 focus:outline-nonefont-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
+          >
+            Editar Nodo
+          </button>
+        </form>
+      </template>
+    </Modal>
+
+
   </main>
 </template>
 <style>
