@@ -118,8 +118,8 @@ const store = createStore({
         "generalData1": 100,
         "generalData2": "Alg",
         "generalData3": 300
-      }
-      
+      },
+      undo: false,
     },
     mutations: {
       setJsonData(state, data) {
@@ -128,7 +128,15 @@ const store = createStore({
       clearJsonData(state) {
         state.jsonData = null;
       },
-    }
+      UNDO(state) {
+        state.undo = !state.undo;
+      },
+    },
+    actions: {
+      undo({ commit }) {
+        commit('UNDO');
+      },
+    },
   });
   
 const app = createApp(App);

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-[#0e1117]">
+  <div class="flex min-h-screen bg-[#0e1117]">
     <Navbar :isOpen="isOpen" @toggle="isOpen = !isOpen" />
     <div class="flex-grow bg-[#0e1117]">
       <router-view />

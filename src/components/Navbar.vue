@@ -211,7 +211,7 @@
                   <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
                 </svg>
               </template>
-              <SubMenuItem title="Deshacer">
+              <SubMenuItem @click="undo" title="Deshacer">
                 <template #icon>
                   <svg
                     class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
@@ -225,39 +225,6 @@
                   >
                     <path d="M10 16l-6-6 6-6" />
                     <path d="M20 21v-7a4 4 0 0 0-4-4H5" />
-                  </svg>
-                </template>
-              </SubMenuItem>
-              <SubMenuItem title="Nodo" @click="showModalNode">
-                <template #icon>
-                  <svg
-                    class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="10"></circle>
-                  </svg>
-                </template>
-              </SubMenuItem>
-              <SubMenuItem title="Arco">
-                <template #icon>
-                  <svg
-                    class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M10 17l5-5-5-5" />
-                    <path d="M13.8 12H3m9 10a10 10 0 1 0 0-20" />
                   </svg>
                 </template>
               </SubMenuItem>
@@ -664,6 +631,10 @@ const store = useStore();
 const clearGraph = () => {
   store.commit("clearJsonData");
 };
+
+const undo = () => {
+  store.dispatch('undo');
+}
 
 const jsonData = computed(() => store.state.jsonData);
 
