@@ -267,7 +267,7 @@
                 </svg>
               </template>
             </SubMenuItem>
-            <SubMenuItem title="Acerca de Grafos">
+            <SubMenuItem @click="goToAbout" title="Acerca de Grafos">
               <template #icon>
                 <svg class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -451,6 +451,10 @@ const Save = async () => {
   } catch (error) {
     console.error(error);
   }
+};
+
+const goToAbout = () => {
+  router.push("/about");
 };
 
 const SaveAs = async () => {
