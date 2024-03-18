@@ -257,7 +257,7 @@
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
               </svg>
             </template>
-            <SubMenuItem title="Ayuda">
+            <SubMenuItem @click="navigateToPage('/manual')" title="Ayuda">
               <template #icon>
                 <svg class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"

@@ -13,7 +13,9 @@
     "html2canvas": "^1.4.1",
     "vis-network": "^9.1.9",
     "vue": "^3.4.15",
+    "vue-pdf": "^2.0.4",
     "vue-router": "^4.2.5",
+    "vue3-pdf-app": "^1.0.3",
     "vuex": "^4.0.2"
   },
   "devDependencies": {
