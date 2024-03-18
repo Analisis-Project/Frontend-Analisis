@@ -125,6 +125,7 @@ function updateGraph(jsonData = "", isundo = false, nodedataset = null, edgedata
       nodesData.push(newnode);
       nodes.push({
         id: newnode.id,
+        value: newnode.value,
         label: newnode.label,
         x: newnode.coordenates.x,
         y: newnode.coordenates.y,
@@ -144,23 +145,25 @@ function updateGraph(jsonData = "", isundo = false, nodedataset = null, edgedata
   console.log("Nodos: ", nodesData);
   console.log("Aristas: ", edgesData);
 
-  if(isundo){
-    if(nodedataset && edgedataset){
-    nodesDataSet = new DataSet(nodedataset);
-    edgesDataSet = new DataSet(edgedataset);
+  if (isundo) {
+    if (nodedataset && edgedataset) {
+      nodesDataSet = new DataSet(nodedataset);
+      edgesDataSet = new DataSet(edgedataset);
     }
-    else{
+    else {
       nodesDataSet = new DataSet(nodes);
       edgesDataSet = new DataSet(edges);
     }
-  } else{
-  nodesDataSet = new DataSet(nodes);
-  edgesDataSet = new DataSet(edges);
+  } else {
+    nodesDataSet = new DataSet(nodes);
+    edgesDataSet = new DataSet(edges);
   }
   let data = {
     nodes: nodesDataSet,
     edges: edgesDataSet,
   };
+  store.commit('setNodesData', nodesData);
+  store.commit('setEdgesData', edgesData);
   console.log("primer data:", edgesData)
   let network = new Network(container.value, data, {});
 
@@ -184,6 +187,22 @@ function updateGraph(jsonData = "", isundo = false, nodedataset = null, edgedata
     },
     physics: {
       enabled: true,
+      barnesHut: {
+        centralGravity: 0.1,
+      },
+      
+    },
+    edges: {
+      physics: false,
+      arrows: {
+      to: {
+        enabled: true,
+        imageHeight: 1,
+        imageWidth: 1,
+        scaleFactor: 1,
+        type: "arrow"
+      },
+    },
     },
   };
 
@@ -419,7 +438,7 @@ const editEdgeForm = () => {
       currentEdge.weight
     );
   }
-  
+
   // Cerrar el modal y resolver la Promise
   closeModalEdgeEdit();
   resolveModalEdit();
@@ -465,6 +484,8 @@ function saveState() {
     nodesDataSet: nodesDataSet.get(),
     edgesDataSet: edgesDataSet.get(),
   });
+  store.commit('setNodesData', nodesData);
+  store.commit('setEdgesData', edgesData);
 }
 
 function undoChanges() {

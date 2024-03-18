@@ -120,6 +120,8 @@ const store = createStore({
         "generalData3": 300
       },
       undo: false,
+      nodesData: [],
+      edgesData: [],
     },
     mutations: {
       setJsonData(state, data) {
@@ -130,6 +132,12 @@ const store = createStore({
       },
       UNDO(state) {
         state.undo = !state.undo;
+      },
+      setNodesData(state, data) {
+        state.nodesData = data;
+      },
+      setEdgesData(state, data) {
+        state.edgesData = data;
       },
     },
     actions: {
