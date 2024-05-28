@@ -126,7 +126,7 @@
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
             </template>
-            <SubMenuItem title="Proceso 1">
+            <SubMenuItem @click="isBipartite()" title="Analizar Grafo">
               <template #icon>
                 <svg class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -530,5 +530,19 @@ const tomarImagen = async () => {
   link.href = imgData;
   link.download = 'screenshot.png';
   link.click();
+};
+
+const isBipartite = async () => {
+  let jsonData = store.state.jsonData;
+  try {
+    let response = await axios.post('http://backend-url/api-endpoint', jsonData);
+    if (response.data) {
+      store.commit('setJsonData', response.data.graphData);
+      store.commit('setIsBipartite', response.data.isBipartite);
+      store.commit('setConnectedComponents', response.data.connectedComponents);
+    }
+  } catch (error) {
+    console.error('Error updating graph:', error);
+  }
 };
 </script>

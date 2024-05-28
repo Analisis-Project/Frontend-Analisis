@@ -139,6 +139,12 @@ const store = createStore({
       setEdgesData(state, data) {
         state.edgesData = data;
       },
+      setIsBipartite(state, isBipartite) {
+        state.isBipartite = isBipartite;
+      },
+      setConnectedComponents(state, connectedComponents) {
+        state.connectedComponents = connectedComponents;
+      },
     },
     actions: {
       undo({ commit }) {

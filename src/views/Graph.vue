@@ -13,6 +13,8 @@ let currentEdge = null;
 let indexEdge = null;
 const store = useStore();
 const jsonData = computed(() => store.state.jsonData);
+const isBipartite = computed(() => store.state.isBipartite);
+const connectedComponents = computed(() => store.state.connectedComponents);
 let json = null;
 let container = ref(null);
 let nodesDataSet = new DataSet();
@@ -72,7 +74,8 @@ class Node {
     data = {},
     type = "",
     radius = 0,
-    coordenates = { x: 0, y: 0 }
+    coordenates = { x: 0, y: 0 },
+    color = null
   ) {
     this.id = id;
     this.value = value;
@@ -81,6 +84,7 @@ class Node {
     this.type = type;
     this.radius = radius;
     this.coordenates = coordenates;
+    this.color = color; 
   }
 }
 
@@ -100,6 +104,10 @@ onBeforeMount(() => {
 // Watcher para actualizar el grafo cuando cambia jsonData
 watch(jsonData, (newData, oldData) => {
   updateGraph(newData);
+
+  // Actualizar la información del grafo cuando cambia jsonData
+  isBipartite.value = store.state.isBipartite;
+  connectedComponents.value = store.state.connectedComponents;
 });
 
 onMounted(() => {
@@ -120,7 +128,8 @@ function updateGraph(jsonData = "", isundo = false, nodedataset = null, edgedata
         node.data,
         node.type,
         node.radius,
-        node.coordenates
+        node.coordenates,
+        node.color
       );
       nodesData.push(newnode);
       nodes.push({
@@ -129,6 +138,7 @@ function updateGraph(jsonData = "", isundo = false, nodedataset = null, edgedata
         label: newnode.label,
         x: newnode.coordenates.x,
         y: newnode.coordenates.y,
+        color: {background:newnode.color}
       });
       node.linkedTo.forEach((link) => {
         let newedge = new Edge("", node.id, link.nodeId, link.weight);
@@ -190,19 +200,19 @@ function updateGraph(jsonData = "", isundo = false, nodedataset = null, edgedata
       barnesHut: {
         centralGravity: 0.1,
       },
-      
+
     },
     edges: {
       physics: false,
       arrows: {
-      to: {
-        enabled: true,
-        imageHeight: 1,
-        imageWidth: 1,
-        scaleFactor: 1,
-        type: "arrow"
+        to: {
+          enabled: true,
+          imageHeight: 1,
+          imageWidth: 1,
+          scaleFactor: 1,
+          type: "arrow"
+        },
       },
-    },
     },
   };
 
@@ -513,8 +523,13 @@ watch(undo, (newVal) => {
 </script>
 
 <template>
-  <main class="w-full h-full">
-    <div class="w-full h-full" id="network" ref="container"></div>
+  <main class="w-full h-full flex flex-col">
+    <div>
+      <p>The graph is {{ isBipartite ? 'bipartite' : 'not bipartite' }}.</p>
+      <p>The graph has {{ connectedComponents }} connected component(s).</p>
+    </div>
+    <div class="w-full flex-grow" id="network" ref="container"></div>
+    
     <Modal v-show="isModalVisibleNodeAdd" @close="closeModalNodeAdd">
       <template v-slot:header>
         <h2 class="text-3xl text-white">Agregar Nodo</h2>
