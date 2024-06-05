@@ -533,9 +533,13 @@ const tomarImagen = async () => {
 };
 
 const isBipartite = async () => {
-  let jsonData = store.state.jsonData;
+  let nodesData = store.state.nodesData;
+  let edgesData = store.state.edgesData;
   try {
-    let response = await axios.post('http://backend-url/api-endpoint', jsonData);
+    let response = await axios.post('http://127.0.0.1:8000/graph/analytics', {
+      nodes: nodesData,
+      edges: edgesData
+    });
     if (response.data) {
       store.commit('setJsonData', response.data.graphData);
       store.commit('setIsBipartite', response.data.isBipartite);
