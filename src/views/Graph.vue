@@ -103,6 +103,12 @@ onBeforeMount(() => {
 
 // Watcher para actualizar el grafo cuando cambia jsonData
 watch(jsonData, (newData, oldData) => {
+  // Limpia el grafo antes de actualizarlo
+  nodesDataSet.clear();
+  edgesDataSet.clear();
+  nodesData = [];
+  edgesData = [];
+  
   updateGraph(newData);
 
   // Actualizar la información del grafo cuando cambia jsonData
@@ -242,6 +248,7 @@ function addNodeFunction(nodeData, callback) {
     callback(nodeData);
     console.log("Agregando nodos: ", nodesDataSet.get());
   });
+  saveGraph();
 }
 
 // Función para agregar un nodo
@@ -302,6 +309,7 @@ function editNodeFunction(nodeData, callback) {
     console.log("Editando nodos: ", nodesData);
     console.log("Editando nodos: ", nodesDataSet.get());
   });
+  saveGraph();
 }
 
 const editNodeForm = () => {
@@ -344,6 +352,7 @@ function deleteNodeFunction(nodeData, callback) {
   console.log("Eliminando nodos: ", nodesDataSet.get());
   // Llama al callback
   callback(nodeData);
+  saveGraph();
 }
 
 // Función para agregar una arista
@@ -379,6 +388,7 @@ function addEdgeFunction(edgeData, callback) {
     callback(edgeData);
     console.log("Agregando arista: ", edgesDataSet.get());
   });
+  saveGraph();
 }
 
 const addEdgeForm = () => {
@@ -432,6 +442,7 @@ function editEdge(edgeData, callback) {
     console.log("Editando aristas: ", edgesData);
     console.log("Editando aristas: ", edgesDataSet.get());
   });
+  saveGraph();
 }
 
 const editEdgeForm = () => {
@@ -467,6 +478,7 @@ function removeEdge(edgeData, callback) {
   console.log("Eliminando arista: ", edgesDataSet.get());
   // Llama al callback
   callback(edgeData);
+  saveGraph();
 }
 
 //Node
@@ -494,6 +506,12 @@ function saveState() {
     nodesDataSet: nodesDataSet.get(),
     edgesDataSet: edgesDataSet.get(),
   });
+  store.commit('setNodesData', nodesData);
+  store.commit('setEdgesData', edgesData);
+}
+
+function saveGraph(){
+  console.log("Guardando cambios");
   store.commit('setNodesData', nodesData);
   store.commit('setEdgesData', edgesData);
 }
