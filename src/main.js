@@ -122,6 +122,7 @@ const store = createStore({
       undo: false,
       nodesData: [],
       edgesData: [],
+      responseData: [],
     },
     mutations: {
       setJsonData(state, data) {
@@ -144,6 +145,9 @@ const store = createStore({
       },
       setConnectedComponents(state, connectedComponents) {
         state.connectedComponents = connectedComponents;
+      },
+      setResponseData(state, data) {
+        state.responseData = data;
       },
     },
     actions: {

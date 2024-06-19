@@ -144,7 +144,7 @@
                 </svg>
               </template>
             </SubMenuItem>
-            <SubMenuItem title="Proceso 2">
+            <SubMenuItem @click="showModalBruteForce()" title="Fuerza Bruta">
               <template #icon>
                 <svg class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -162,7 +162,7 @@
                 </svg>
               </template>
             </SubMenuItem>
-            <SubMenuItem title="Proceso 3">
+            <SubMenuItem @click="showModalBottomUp()" title="Programación Dinamica">
               <template #icon>
                 <svg class="mr-2 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-white"
                   xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -286,6 +286,39 @@
       </div>
     </div>
   </div>
+  <!-- Modal para Fuerza Bruta -->
+  <Modal v-show="isModalBruteForceVisible" @close="closeModalBruteForce">
+    <template v-slot:header>
+      <h2 class="text-3xl text-white">Fuerza Bruta</h2>
+    </template>
+    <template v-slot:body>
+      <h3 class="text-xl">Ingrese la clave</h3>
+      <div class="flex mb-10">
+        <input v-model="bruteForceKey" type="text" class="border-2 border-gray-700 p-2 rounded-lg w-full text-black" />
+      </div>
+      <button @click="BruteForce"
+        class="bg-gray-500 mr-4 text-white flex items-center p-2 rounded-lg hover:bg-gray-700 border-gray-700 group">
+        <span>Ejecutar</span>
+      </button>
+    </template>
+  </Modal>
+
+  <!-- Modal para Programación Dinámica -->
+  <Modal v-show="isModalBottomUpVisible" @close="closeModalBottomUp">
+    <template v-slot:header>
+      <h2 class="text-3xl text-white">Programación Dinámica</h2>
+    </template>
+    <template v-slot:body>
+      <h3 class="text-xl">Ingrese la clave</h3>
+      <div class="flex mb-10">
+        <input v-model="bottomUpKey" type="text" class="border-2 border-gray-700 p-2 rounded-lg w-full text-black" />
+      </div>
+      <button @click="BottomUp"
+        class="bg-gray-500 mr-4 text-white flex items-center p-2 rounded-lg hover:bg-gray-700 border-gray-700 group">
+        <span>Ejecutar</span>
+      </button>
+    </template>
+  </Modal>
   <Modal v-show="isModalVisible" @close="closeModal">
     <template v-slot:header>
       <h2 class="text-3xl text-white">Exportar datos</h2>
@@ -363,8 +396,12 @@ import axios from "axios";
 
 const isModalVisible = ref(false);
 const isModalVisibleSave = ref(false);
+const isModalBruteForceVisible = ref(false);
+const isModalBottomUpVisible = ref(false);
 
 const nameArchive = ref("");
+const bruteForceKey = ref("");
+const bottomUpKey = ref("");
 
 const goToGraph = () => {
   router.push("/");
@@ -384,7 +421,18 @@ const showModalSave = () => {
 const closeModalSave = () => {
   isModalVisibleSave.value = false;
 };
-
+const showModalBruteForce = () => {
+  isModalBruteForceVisible.value = true;
+};
+const closeModalBruteForce = () => {
+  isModalBruteForceVisible.value = false;
+};
+const showModalBottomUp = () => {
+  isModalBottomUpVisible.value = true;
+};
+const closeModalBottomUp = () => {
+  isModalBottomUpVisible.value = false;
+};
 const props = defineProps({
   isOpen: Boolean,
 });
@@ -547,6 +595,42 @@ const isBipartite = async () => {
     }
   } catch (error) {
     console.error('Error updating graph:', error);
+  }
+};
+
+const BruteForce = async () => {
+  closeModalBruteForce();
+  let key = bruteForceKey.value;
+  // Aquí puedes llamar a la API para ejecutar el algoritmo de Fuerza Bruta con la clave proporcionada
+  // ...
+  try {
+    let response = await axios.post('http://127.0.0.1:8000/graph/brute-force', {
+      key: key,
+    });
+    if (response.data) {
+      console.log(response.data);
+      store.commit('setResponseData', response.data);
+    }
+  } catch (error) {
+    console.error('Error updating brute force:', error);
+  }
+};
+
+const BottomUp = async () => {
+  closeModalBottomUp();
+  let key = bottomUpKey.value;
+  // Aquí puedes llamar a la API para ejecutar el algoritmo de Programación Dinámica con la clave proporcionada
+  // ...
+  try {
+    let response = await axios.post('http://127.0.0.1:8000/graph/bottom-up', {
+      key: key,
+    });
+    if (response.data) {
+      console.log(response.data);
+      store.commit('setResponseData', response.data);
+    }
+  } catch (error) {
+    console.error('Error updating Dynamic Prog:', error);
   }
 };
 </script>

@@ -15,6 +15,7 @@ const store = useStore();
 const jsonData = computed(() => store.state.jsonData);
 const isBipartite = computed(() => store.state.isBipartite);
 const connectedComponents = computed(() => store.state.connectedComponents);
+const responseData = computed(() => store.state.responseData);
 let json = null;
 let container = ref(null);
 let nodesDataSet = new DataSet();
@@ -115,6 +116,11 @@ watch(jsonData, (newData, oldData) => {
   isBipartite.value = store.state.isBipartite;
   connectedComponents.value = store.state.connectedComponents;
 });
+
+watch(responseData, (newValue, oldValue) => {
+      // Aquí puedes manejar lo que sucede cuando responseData cambia
+      console.log('responseData ha cambiado', newValue);
+    });
 
 onMounted(() => {
   // Inicializar el grafo con los datos actuales
@@ -538,6 +544,45 @@ watch(undo, (newVal) => {
   }
 });
 
+
+const generateTable = (data) => {
+  if (!data) {
+    return '<p></p>';
+  }
+
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      return '<p>Invalid JSON data</p>';
+    }
+  }
+
+  let table = '<table class="table-auto border-collapse border border-gray-300 w-full">';
+  table += '<thead><tr class="bg-gray-200 text-black">';
+
+  // Create table header
+  const firstRow = data[Object.keys(data)[0]];
+  if (firstRow) {
+    Object.keys(firstRow).forEach(key => {
+      table += `<th class="border border-gray-400 px-4 py-2">${key}</th>`;
+    });
+  }
+  table += '</tr></thead><tbody>';
+
+  // Create table rows
+  Object.keys(data).forEach(key => {
+    table += '<tr>';
+    Object.values(data[key]).forEach(value => {
+      table += `<td class="border border-gray-400 px-4 py-2">${value}</td>`;
+    });
+    table += '</tr>';
+  });
+
+  table += '</tbody></table>';
+  return table;
+};
+
 </script>
 
 <template>
@@ -547,7 +592,37 @@ watch(undo, (newVal) => {
       <p>The graph has {{ connectedComponents }} connected component(s).</p>
     </div>
     <div class="w-full flex-grow" id="network" ref="container"></div>
-    
+    <div v-if="responseData">
+      <h2 class="text-xl font-bold">Resultados del Algoritmo de Fuerza Bruta</h2>
+      <div>
+        <h3 class="text-lg font-semibold">Matriz Original</h3>
+        <div v-html="generateTable(responseData.original)"></div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold">Menor EMD</h3>
+        <p>{{ responseData.menor }}</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold">Mejor Combinación</h3>
+        <p>{{ responseData.best_combination }}</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold">Mejor Distribución</h3>
+        <div v-html="generateTable(responseData.best_dict)"></div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold">Diccionario Af</h3>
+        <div v-html="generateTable(responseData.Af)"></div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold">Diccionario Bf</h3>
+        <div v-html="generateTable(responseData.Bf)"></div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold">Diccionario Cf</h3>
+        <div v-html="generateTable(responseData.Cf)"></div>
+      </div>
+    </div>
     <Modal v-show="isModalVisibleNodeAdd" @close="closeModalNodeAdd">
       <template v-slot:header>
         <h2 class="text-3xl text-white">Agregar Nodo</h2>
